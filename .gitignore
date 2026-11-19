@@ -1,0 +1,32 @@
+# ---- macOS ----
+.DS_Store
+._*
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.python-version
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Editors / IDEs ----
+.vscode/
+.idea/
+*.swp
+
+# ---- Build artifacts ----
+build/
+dist/
+*.egg-info/
+
+# ---- Generated run outputs ----
+# Every stage writes into its own *_results/ directory. Raw traces total
+# ~550 MB (individual CSVs up to 54 MB, NPZ archives up to 44 MB), so no
+# run output is tracked: results are fully reproducible from the scripts
+# plus the fixed seeds documented in the README.
+*_results/

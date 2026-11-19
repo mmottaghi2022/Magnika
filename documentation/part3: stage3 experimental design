@@ -1,0 +1,576 @@
+# MAGNIKA
+## Part 3 — Stage G Experimental Design and Implementation Specification
+
+**Document status:** Experimental design  
+**Stage:** G  
+**Research domain:** Grain-size and microstructure sensitivity  
+**Implementation language:** Python  
+**Baseline model:** MAGNIKA two-dimensional XY spin-lattice model  
+**Previous stages:** B–F completed  
+**Stage G status:** Planned — implementation and execution pending
+
+---
+
+# 1. Research Objective
+
+Stage G introduces metallurgical microstructure as an explicit experimental variable.
+
+The previous stages investigated the effects of grain-boundary coupling and applied-field strength using a fixed grain count and different random microstructures.
+
+Stage G extends this research by investigating:
+
+1. The influence of grain size.
+2. The influence of grain crystallographic orientation distribution.
+3. The interaction between grain size and boundary coupling.
+4. The interaction between grain orientation distribution and boundary coupling.
+5. The effect of applied-field strength on these relationships.
+
+The ultimate purpose is to establish a microstructure-sensitive magnetic model that can later be calibrated against real electrical-steel measurements.
+
+# 2. Main Research Hypotheses
+
+## H1 — Grain-size dependence
+
+Changing grain size changes the density and spatial distribution of grain boundaries.
+
+At a fixed material area, smaller grains generally produce more grain boundaries per unit area.
+
+This changes the number of intergranular interactions and can influence the magnetic orientation distribution.
+
+**Question:** How does the grain-size proxy affect grain-to-grain dispersion, boundary mismatch and macroscopic magnetization?
+
+## H2 — Crystallographic orientation distribution
+
+The distribution of preferred grain anisotropy directions affects the collective magnetic response.
+
+A narrow orientation distribution may produce more uniform magnetic behavior than a broad distribution.
+
+A multimodal distribution may introduce competing preferred magnetic directions.
+
+**Question:** How does texture influence the response of the polycrystalline lattice?
+
+## H3 — Grain size × boundary coupling
+
+The effect of boundary coupling may depend on how frequently grain boundaries occur.
+
+A particular η value may produce different macroscopic and microscopic behavior in fine-grained and coarse-grained structures.
+
+**Question:** Is the influence of η independent of grain size, or does a significant interaction exist?
+
+## H4 — Texture × boundary coupling
+
+The influence of grain-boundary coupling may depend on the misorientation between neighboring grains.
+
+Two structures with identical grain counts can exhibit different magnetic responses because their preferred anisotropy directions differ.
+
+**Question:** Does the orientation distribution change the sensitivity of the magnetic response to η?
+
+## H5 — Applied-field interaction
+
+The influence of grain size and texture may change with applied-field strength.
+
+**Question:** Does a stronger field suppress the sensitivity of the microstructure to grain size and texture?
+
+# 3. Experimental Design
+
+Stage G will initially use a controlled one-factor-at-a-time design.
+
+This is intentional: the first objective is to isolate individual effects before attempting a larger factorial experiment.
+
+## 3.1 Baseline Configuration
+
+| Parameter | Value |
+|---|---:|
+| Lattice X | 40 |
+| Lattice Y | 40 |
+| Total lattice sites | 1,600 |
+| Independent seeds | 5 |
+| Applied-field magnitudes | 0.25, 0.45, 0.70 |
+| Field angular steps | 72 |
+| Boundary coupling values | 9 |
+| Optimizer gradient threshold | 1 × 10⁻⁵ |
+| Initial magnetization | Uniform +x |
+| Field initialization | 0° |
+| Final closure sample | 360° |
+
+Boundary coupling:
+
+\[
+\eta=
+[0.01,0.025,0.05,0.1,0.2,0.3,0.5,0.7,1.0]
+\]
+
+Applied field:
+
+\[
+H=
+[0.25,0.45,0.70]
+\]
+
+These are the same dimensionless field and boundary-coupling values used in Stage F.
+
+## 3.2 Grain-Size Experiment
+
+The first grain-size experiment uses three grain counts:
+
+| Condition | Grain count | Interpretation |
+|---|---:|---|
+| Coarse | 50 | Larger average grain regions |
+| Baseline | 100 | Existing reference structure |
+| Fine | 200 | Smaller average grain regions |
+
+The grid remains 40 × 40.
+
+At fixed lattice area, increasing the number of grains decreases the average number of lattice sites per grain.
+
+For approximately equiaxed grains, the characteristic numerical grain dimension scales approximately as:
+
+\[
+d_{\mathrm{grid}}\propto\sqrt{\frac{N}{N_g}}
+\]
+
+where:
+- \(N\) is the number of lattice sites.
+- \(N_g\) is the number of grains.
+
+This is a relative numerical grain-size proxy.
+
+It is not yet a physical grain diameter in micrometres.
+
+## 3.3 Crystallographic Orientation Experiment
+
+Three orientation distributions will be investigated.
+
+All grain orientations are assigned in the interval:
+
+\[
+0\leq\phi_g<\frac{\pi}{2}
+\]
+
+This interval is consistent with the fourfold periodicity of the current anisotropy energy.
+
+### Distribution A — Uniform
+
+\[
+\phi_g\sim U(0,\pi/2)
+\]
+
+Represents a broad distribution of preferred orientations.
+
+### Distribution B — Narrow
+
+\[
+\phi_g\sim
+\mathcal N\left(
+\frac{\pi}{4},
+\left(\frac{\pi}{24}\right)^2
+\right)
+\]
+
+The sampled values are wrapped into the interval \([0,\pi/2)\).
+
+Represents a concentrated orientation distribution.
+
+### Distribution C — Bimodal
+
+Two equally weighted populations:
+
+\[
+\phi_g\sim
+\begin{cases}
+\mathcal N(\pi/8,(\pi/48)^2)\\
+\mathcal N(3\pi/8,(\pi/48)^2)
+\end{cases}
+\]
+
+The sampled values are wrapped into the interval \([0,\pi/2)\).
+
+Represents two preferred orientation populations.
+
+These are controlled mathematical distributions, not claims about the actual texture of a particular electrical steel.
+
+# 4. Experimental Conditions
+
+The initial experiment contains five unique structural conditions.
+
+| Condition | Grain count | Orientation distribution |
+|---|---:|---|
+| G1 | 50 | Uniform |
+| G2 | 100 | Uniform |
+| G3 | 200 | Uniform |
+| G4 | 100 | Narrow |
+| G5 | 100 | Bimodal |
+
+This arrangement isolates:
+
+- Grain-count effects under uniform orientation.
+- Orientation-distribution effects at a fixed grain count.
+
+It does not yet provide a complete grain-size × texture factorial study.
+
+# 5. Total Simulation Matrix
+
+The total number of independent cases is:
+
+\[
+N_{\mathrm{cases}}
+=
+5\times5\times3\times9
+\]
+
+Therefore:
+
+\[
+\boxed{N_{\mathrm{cases}}=675}
+\]
+
+The terms represent:
+
+- Five structural conditions.
+- Five independent seeds.
+- Three applied-field magnitudes.
+- Nine boundary-coupling values.
+
+Each independent case contains 72 rotating-field steps plus one closure sample.
+
+\[
+N_{\mathrm{samples}}
+=
+675\times73
+\]
+
+\[
+\boxed{N_{\mathrm{samples}}=49,275}
+\]
+
+The experiment is therefore large enough to provide useful statistical comparisons while remaining manageable on a local computer.
+
+# 6. Simulation Procedure
+
+For every structural condition:
+
+1. Generate the grain map.
+2. Generate the grain orientation distribution.
+3. Initialize the MAGNIKA model.
+4. Set the initial magnetic state to uniform +x.
+5. Select the applied-field magnitude.
+6. Select the boundary-coupling coefficient.
+7. Rotate the field through 360°.
+8. Minimize the energy at each field angle.
+9. Record the equilibrium magnetic state.
+10. Calculate the microstructural diagnostics.
+11. Calculate the final cycle-closure errors.
+12. Save all numerical results.
+
+The field is defined as:
+
+\[
+h_x=H\cos\alpha
+\]
+
+\[
+h_y=H\sin\alpha
+\]
+
+where:
+
+\[
+\alpha_k=\frac{2\pi k}{72},
+\qquad k=0,\ldots,72
+\]
+
+The final sample at 360° is included to evaluate cycle closure.
+
+The equilibrium at each field angle is initialized using the previous equilibrium configuration.
+
+This is quasi-static continuation, not dynamic magnetization simulation.
+
+# 7. Required Measurements
+
+Every field sample should record the following.
+
+## 7.1 Macroscopic Measurements
+
+- Mx.
+- My.
+- Magnetization magnitude.
+- Mean magnetization angle.
+- Total energy.
+- Exchange energy.
+- Anisotropy energy.
+- Zeeman energy.
+
+## 7.2 Microstructural Measurements
+
+- Grain-to-grain angular dispersion.
+- Boundary RMS angular mismatch.
+- Intragranular angular dispersion.
+- Mean grain resultant.
+- Grain count and realized grain statistics.
+
+## 7.3 Energy Partition
+
+Exchange energy should be separated into:
+
+\[
+E_{\mathrm{exchange}}
+=
+E_{\mathrm{intragranular}}
++
+E_{\mathrm{boundary}}
+\]
+
+The boundary contribution must include the η weighting.
+
+The energy partition should be checked against the total exchange energy calculated by the model.
+
+## 7.4 Numerical Measurements
+
+- Optimizer success.
+- Maximum absolute gradient.
+- Number of optimizer iterations.
+- Retry count.
+- Energy decomposition error.
+- Macroscopic cycle-closure error.
+- Grain-level cycle-closure error.
+
+# 8. Numerical Acceptance Criteria
+
+The following conditions should be used for Stage G.
+
+| Validation | Acceptance criterion |
+|---|---:|
+| Maximum gradient infinity norm | ≤ 1 × 10⁻⁵ |
+| Energy partition error | ≤ 1 × 10⁻¹⁰ |
+| Optimizer failures | Zero accepted failures |
+| Non-finite energy or gradient | Zero |
+| Non-finite magnetization | Zero |
+| Cycle closure | Recorded and reported |
+| Reproducibility | Identical results for identical configuration and seed |
+
+The optimizer success flag alone is insufficient.
+
+The actual gradient must be checked independently.
+
+If the gradient threshold is not satisfied:
+1. Retry with stricter optimizer settings.
+2. Increase the iteration limit.
+3. Record the retry.
+4. If the threshold still fails, mark the sample as failed.
+5. Do not silently include failed samples in the statistical averages.
+
+Cycle closure is a diagnostic, not an automatic physical correctness criterion. A quasi-static model can exhibit path dependence or converge to a different local minimum.
+
+# 9. Statistical Analysis
+
+For each structural condition, field magnitude and η value, calculate the mean and standard deviation across the five seeds.
+
+Primary comparisons:
+
+## 9.1 Grain-Size Sensitivity
+
+Compare:
+
+\[
+G1,\ G2,\ G3
+\]
+
+at identical field strength and η.
+
+Investigate:
+- Grain-to-grain dispersion.
+- Boundary mismatch.
+- Intragranular dispersion.
+- Magnetization magnitude.
+- Exchange-energy partition.
+
+## 9.2 Texture Sensitivity
+
+Compare:
+
+\[
+G2,\ G4,\ G5
+\]
+
+at identical field strength and η.
+
+Investigate whether orientation distribution changes the collective magnetic response.
+
+## 9.3 Boundary-Coupling Sensitivity
+
+Calculate the variation of each metric with η.
+
+Determine whether the relationship is monotonic, non-monotonic or condition-dependent.
+
+## 9.4 Field Sensitivity
+
+Compare all structural conditions across the three applied-field magnitudes.
+
+Determine whether higher field strength reduces or increases the influence of grain size and texture.
+
+## 9.5 Statistical Reporting
+
+For every mean, retain:
+- Standard deviation.
+- Minimum.
+- Maximum.
+- Number of successful runs.
+
+Five seeds provide an initial reproducibility assessment, not a definitive statistical characterization.
+
+# 10. Output Files
+
+The Stage G script should generate the following files.
+
+### 1. stageG_samples.csv
+
+One row per field sample.
+
+Contains:
+- Structural condition.
+- Grain count.
+- Orientation distribution.
+- Seed.
+- Applied-field magnitude.
+- η.
+- Field angle.
+- Magnetization.
+- Energy components.
+- Microstructural diagnostics.
+- Optimizer diagnostics.
+
+### 2. stageG_case_means.csv
+
+One row per independent simulation case.
+
+Contains averages over the rotating-field experiment.
+
+### 3. stageG_summary.csv
+
+Aggregated results by structural condition, field magnitude and η.
+
+Contains:
+- Mean grain dispersion.
+- Standard deviation.
+- Mean boundary mismatch.
+- Mean intragranular dispersion.
+- Mean magnetization magnitude.
+- Energy components.
+- Numerical diagnostics.
+
+### 4. stageG_cycle_closure.csv
+
+Contains:
+- Initial and final magnetization.
+- Macroscopic closure error.
+- Grain-level closure error.
+- Condition and configuration identifiers.
+
+### 5. stageG_optimizer_failures.csv
+
+Contains all samples that fail the numerical acceptance criteria.
+
+If there are no failures, the report should explicitly state zero.
+
+### 6. stageG_report.txt
+
+A compact terminal-readable report containing:
+- Experiment configuration.
+- Total simulation cases.
+- Total field samples.
+- Numerical acceptance results.
+- Grain-size comparisons.
+- Texture comparisons.
+- Field-strength comparisons.
+- Main findings and limitations.
+
+The primary output should be CSV and text. PNG files are not required.
+
+# 11. Important Physical Interpretation
+
+Stage G must not claim that the numerical grain count directly predicts the performance of real electrical steel.
+
+There are several reasons:
+
+1. The current lattice has no calibrated physical cell size.
+2. Grain-boundary exchange is phenomenological.
+3. The model lacks long-range magnetostatic interactions.
+4. Magnetic domain walls are not explicitly represented.
+5. The model does not yet represent measured crystallographic anisotropy constants.
+6. The current orientation distributions are controlled mathematical inputs.
+
+Therefore, Stage G should establish numerical sensitivities and identify promising hypotheses.
+
+Physical grain-size predictions require later calibration.
+
+# 12. Extension: Physically Calibrated Grain Size
+
+After the first Stage G experiment, a separate model-development step should introduce physical dimensions.
+
+Define:
+- Lattice cell length.
+- Physical representative-area dimensions.
+- Physical grain-size distribution.
+- Grain-boundary geometry.
+- Material exchange stiffness.
+- Crystallographic anisotropy parameters.
+
+For approximately equiaxed grains in a fixed physical area:
+
+\[
+N_g\propto\frac{A}{d^2}
+\]
+
+where:
+- \(A\) is the representative area.
+- \(d\) is characteristic grain diameter.
+
+The actual relationship depends on grain shape and size distribution.
+
+The discretization and exchange-energy scaling must also be reconsidered when physical cell size changes.
+
+This is necessary to prevent numerical mesh effects from being mistaken for metallurgical grain-size effects.
+
+# 13. Stage G Deliverables
+
+Stage G is considered complete when:
+
+1. All five structural conditions have been simulated.
+2. All five random seeds have been evaluated.
+3. All three field strengths have been evaluated.
+4. All nine η values have been evaluated.
+5. Numerical acceptance criteria have been checked.
+6. CSV outputs have been generated.
+7. Grain-size sensitivity has been quantified.
+8. Texture sensitivity has been quantified.
+9. The interaction with field strength has been assessed.
+10. The findings and limitations have been documented.
+
+# 14. Expected Research Outcomes
+
+Stage G is expected to provide answers to the following questions:
+
+- Does changing grain size alter the internal magnetic orientation distribution?
+- Does a narrow texture produce more uniform magnetic behavior?
+- Does a bimodal texture introduce competing magnetic responses?
+- Does grain size change the sensitivity to boundary coupling?
+- Does higher applied-field strength suppress microstructural variation?
+- Which microstructural variables deserve more detailed physical modeling?
+
+The experiment may confirm, reject or refine the initial hypotheses.
+
+No outcome should be assumed in advance.
+
+# 15. Transition to Stage H
+
+Stage G investigates how the existing simplified magnetic model responds to changes in grain structure.
+
+Stage H must address the next major physical limitation:
+
+The current model uses only nearest-neighbor exchange, local anisotropy and applied-field energy.
+
+Real magnetic materials also exhibit long-range magnetostatic interactions and complex magnetic-domain structures.
+
+The next research objective is therefore to improve the physical representation of magnetism before translating the model into effective engineering material properties.
+
+**Stage G establishes microstructure sensitivity. Stage H develops the physical magnetic model needed to interpret that sensitivity more realistically.**

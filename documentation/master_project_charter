@@ -1,0 +1,621 @@
+# MAGNIKA
+## A Materials-Aware Electromagnetic Design Platform for PM-Free Synchronous Reluctance Motors
+
+**Document type:** Project charter and master research roadmap  
+**Project status:** Exploratory numerical research — Stages B–F completed  
+**Long-term application:** SynRM / SynSRM rotor, stator and VFD co-design  
+**Primary objective:** Develop a computational methodology that connects metallurgical properties, magnetic behavior, electromagnetic topology and power-electronic control to produce cost-effective, high-performance permanent-magnet-free motors.
+
+---
+
+# 1. Project Vision
+
+MAGNIKA aims to establish a new approach to electromagnetic machine development.
+
+Conventional motor design generally begins with an established electrical-steel material model, a selected motor topology and a set of electromagnetic design constraints. The material is treated primarily as an input to the electromagnetic simulation.
+
+MAGNIKA proposes a broader approach:
+
+**The material itself becomes an optimization variable.**
+
+The project will investigate how metallurgical composition, grain size, grain distribution, crystallographic orientation and processing conditions influence magnetic behavior, and how those properties can be used to improve rotor and stator designs.
+
+The resulting material models will be integrated into finite-element electromagnetic analysis and eventually into motor and VFD optimization.
+
+The ultimate target is a competitive PM-free synchronous reluctance motor that approaches the practical performance of PM-assisted synchronous reluctance machines while avoiding permanent-magnet dependency, rare-earth supply risks and associated cost.
+
+# 2. The Central Analogy: A Digital Foundry
+
+MAGNIKA can be understood as a digital foundry.
+
+A conventional foundry transforms raw materials through controlled manufacturing processes into a component with specific mechanical and physical properties.
+
+MAGNIKA will establish a computational equivalent for magnetic materials and electrical machines:
+
+| Digital foundry stage | MAGNIKA equivalent |
+|---|---|
+| Raw material selection | Iron composition and alloying elements |
+| Metallurgical processing | Heat treatment, rolling and grain development |
+| Microstructure inspection | Grain size, distribution and crystallographic texture |
+| Material characterization | Magnetic response, anisotropy, saturation and losses |
+| Component design | Rotor and stator geometry |
+| System integration | Motor, inverter and control strategy |
+| Product validation | Prototype measurements and performance testing |
+
+The important idea is that each stage supplies validated information to the next stage.
+
+MAGNIKA should ultimately become a computational design chain:
+
+**Composition → Microstructure → Magnetic Properties → Electromagnetic FEM → Motor Topology → VFD → Optimized Machine**
+
+# 3. Main Research Hypothesis
+
+The magnetic performance of a synchronous reluctance motor is determined by the interaction of three principal factors:
+
+1. **Magnetic topology:** The rotor and stator geometry establishes the preferred magnetic flux paths and the difference between d-axis and q-axis reluctance.
+2. **Metallurgical properties:** Composition, microstructure, crystallographic orientation and processing determine how the material responds to the magnetic field.
+3. **Electrical excitation:** The inverter and control strategy determine how the machine is magnetically excited over its operating range.
+
+The project investigates whether simultaneous optimization of these factors can produce a better motor than conventional optimization with a fixed, predefined steel material model.
+
+The project does not assume that a particular grain size or alloy composition will necessarily improve motor performance. These relationships must be established through simulation and experimental validation.
+
+# 4. Engineering Objectives
+
+## 4.1 Material objectives
+
+- Investigate the influence of grain size and grain-size distribution.
+- Investigate crystallographic orientation and magnetic texture.
+- Understand the influence of grain boundaries on magnetic behavior.
+- Study iron composition and possible alloying additions.
+- Develop effective nonlinear magnetic constitutive models.
+- Predict saturation, permeability, coercivity and magnetic losses.
+- Investigate temperature and frequency dependence.
+
+## 4.2 Electromagnetic objectives
+
+- Optimize rotor flux barriers and iron bridges.
+- Optimize stator geometry and winding configuration.
+- Improve effective magnetic saliency.
+- Reduce leakage flux and unwanted saturation.
+- Increase average torque and torque density.
+- Reduce torque ripple and electromagnetic losses.
+- Evaluate the interaction between material properties and rotor topology.
+
+## 4.3 Power-electronics objectives
+
+- Optimize current-vector control.
+- Investigate maximum torque per ampere (MTPA).
+- Optimize flux-weakening operation.
+- Investigate PWM and switching-frequency effects.
+- Optimize inverter voltage and current utilization.
+- Evaluate motor and VFD efficiency as one system.
+
+## 4.4 Commercial objectives
+
+- Reduce dependence on permanent magnets.
+- Avoid rare-earth supply-chain exposure.
+- Reduce material and manufacturing costs.
+- Develop a motor platform suitable for smaller manufacturers and less supply-chain-sensitive industries.
+- Establish a reproducible design methodology that can be applied to different motor sizes.
+
+# 5. Current Research Foundation: Stages B–F
+
+The initial MAGNIKA experiments investigate the relationship between grain-boundary coupling and magnetic orientation in a simplified two-dimensional model.
+
+The current model represents the material as a lattice of magnetic orientations. Each grain has a preferred anisotropy direction, while neighboring lattice sites interact through an exchange-energy term.
+
+The grain-boundary coefficient, η, modifies the exchange interaction across grain boundaries.
+
+The model is currently a discrete XY spin-lattice model, not a finite-element electromagnetic solver or a fully calibrated micromagnetic material model.
+
+## Stage B — Numerical Foundation
+
+**Objective:** Establish the mathematical and computational foundation.
+
+Implemented:
+- Two-dimensional grain map.
+- Grain-dependent anisotropy directions.
+- Nearest-neighbor exchange interactions.
+- Grain-boundary exchange coefficient.
+- Zeeman energy.
+- Analytic energy gradient.
+- Numerical energy minimization.
+
+Validation:
+- Gradient verification.
+- Optimizer checks.
+- Energy decomposition.
+
+The analytic gradient validation error was approximately 3.67 × 10⁻⁷.
+
+**Status: Completed.**
+
+## Stage C — Rotating Magnetic Field Experiment
+
+**Objective:** Investigate the response of a polycrystalline lattice under a rotating applied field.
+
+Configuration:
+- 40 × 40 lattice.
+- 100 grains.
+- 72 angular steps.
+- Applied field magnitude: 0.45.
+- Multiple grain-boundary coupling values.
+
+Initial observation:
+
+Reducing η increases the dispersion between grain-average magnetic orientations, while macroscopic magnetization changes relatively little.
+
+**Status: Completed.**
+
+## Stage D — Boundary-Coupling Sensitivity
+
+**Objective:** Extend the boundary-coupling investigation across a wider parameter range.
+
+Nine values of η were investigated, from 0.01 to 1.0.
+
+The mean grain-to-grain angular dispersion decreased from approximately 5.24° to 2.72° as η increased.
+
+This represents an approximately 48% reduction.
+
+The result demonstrates that macroscopic magnetization alone does not fully describe the internal magnetic state.
+
+**Status: Completed.**
+
+## Stage E — Statistical Reproducibility
+
+**Objective:** Determine whether the observed behavior persists across different microstructures.
+
+Configuration:
+- Five independent grain-structure seeds.
+- Nine boundary-coupling values.
+- Rotating field experiment.
+- 45 independent simulation cases.
+
+Main observations:
+- The reduction in grain-to-grain dispersion persisted across all five seeds.
+- Boundary angular mismatch decreased as η increased.
+- Intragranular angular dispersion increased as η increased.
+- Macroscopic magnetization remained close to unity.
+- No optimizer failures were reported.
+
+The mean grain-to-grain dispersion reduction was approximately 47%.
+
+This suggests a redistribution of angular distortion between grain boundaries and grain interiors rather than a simple reduction in every form of magnetic variation.
+
+**Status: Completed.**
+
+## Stage F — Applied-Field Interaction
+
+**Objective:** Investigate the interaction between boundary coupling and applied-field strength.
+
+Configuration:
+- Five seeds.
+- Three applied-field magnitudes: 0.25, 0.45 and 0.70.
+- Nine boundary-coupling values.
+- 135 independent cases.
+- 9,855 field samples.
+
+Main observations:
+
+1. Increasing boundary coupling reduces grain-to-grain dispersion.
+2. Increasing applied-field strength also reduces grain-to-grain dispersion.
+3. The relative sensitivity to boundary coupling becomes smaller at higher field strength.
+4. Boundary mismatch decreases while intragranular dispersion increases with stronger coupling.
+5. Macroscopic magnetization approaches unity.
+
+Numerical checks:
+- Failed gradient checks: zero.
+- Maximum gradient infinity norm: approximately 1.96 × 10⁻⁶.
+- Maximum macroscopic cycle-closure error: approximately 4.12 × 10⁻⁸.
+
+**Status: Completed.**
+
+## Interpretation of Stages B–F
+
+The experiments establish that the simplified lattice model can investigate how grain-boundary coupling, grain structure and applied field influence internal magnetic orientation.
+
+They do not yet establish a quantitative relationship between real electrical-steel grain size and motor performance.
+
+The current parameters are dimensionless or phenomenological. Real material calibration and additional magnetic physics are required before making engineering predictions.
+
+# 6. Future Research Roadmap
+
+## Phase I — Microstructure and Magnetic Physics
+
+### Stage G — Grain Size and Microstructure
+
+**Objective:** Introduce metallurgical grain structure as an explicit design variable.
+
+Investigate:
+- Fine, medium and coarse grains.
+- Grain-size distributions.
+- Grain shape and boundary geometry.
+- Crystallographic orientation distributions.
+- Uniform, narrow and multimodal texture distributions.
+- Interactions between grain size, texture and boundary coupling.
+
+Proposed first investigation:
+- Relative grain-size targets corresponding approximately to 50, 100 and 200 μm.
+- Multiple independent microstructure seeds.
+- Multiple field strengths.
+- The existing η parameter sweep.
+
+Important requirement:
+
+A 40 × 40 lattice with different grain counts is not automatically a physically calibrated grain-size model. The physical cell dimension, grain geometry and material length scale must eventually be defined.
+
+Deliverables:
+- Grain-size sensitivity report.
+- Microstructure statistical database.
+- Grain-size and texture comparison.
+- Reproducible Python scripts.
+- CSV results and numerical validation report.
+
+**Status: Planned — not yet completed.**
+
+### Stage H — Advanced Magnetic Interactions
+
+**Objective:** Improve the physical completeness of MAGNIKA.
+
+Investigate:
+- Magnetostatic self-interaction and demagnetizing fields.
+- Long-range interactions.
+- Domain-wall behavior.
+- Magnetic domain formation.
+- More realistic anisotropy models.
+- Three-dimensional effects where necessary.
+- Hysteresis and irreversible magnetization processes.
+
+The objective is to move beyond a nearest-neighbor XY model toward a more physically complete micromagnetic framework.
+
+Deliverables:
+- Extended energy formulation.
+- Numerical verification.
+- Comparison with established micromagnetic results.
+- Defined limitations and applicability.
+
+### Stage I — Homogenization and Material Constitutive Models
+
+**Objective:** Translate microstructure-scale simulation into usable engineering material properties.
+
+The desired output is an effective material response:
+
+B = F(H, direction, history, temperature, frequency)
+
+Initially, the model should focus on reversible nonlinear magnetic response. More advanced history-dependent behavior can follow.
+
+Investigate:
+- Effective B-H curves.
+- Differential permeability.
+- Directional magnetic response.
+- Saturation.
+- Magnetic energy density.
+- Hysteresis and frequency-dependent losses.
+- Temperature dependence.
+
+Deliverables:
+- Homogenized material model.
+- Material-property tables.
+- B-H data.
+- Anisotropic material descriptions.
+- Validation against measured electrical-steel data.
+
+This stage is the essential bridge between MAGNIKA and engineering FEM.
+
+## Phase II — Material Development and Experimental Validation
+
+### Stage J — Metallurgical Composition and Processing
+
+**Objective:** Investigate the relationship between chemical composition, manufacturing process and magnetic performance.
+
+Variables:
+- Iron purity.
+- Silicon content.
+- Aluminium and other possible alloying additions.
+- Carbon and impurity content.
+- Rolling and annealing conditions.
+- Grain growth and texture.
+- Resistivity and mechanical properties.
+
+The objective is not to maximize one magnetic property in isolation.
+
+The target is a balanced material suitable for motor laminations:
+- High useful flux density.
+- High permeability.
+- Low coercivity.
+- Low hysteresis loss.
+- Low eddy-current loss.
+- Adequate mechanical strength.
+- Practical manufacturability and cost.
+
+Deliverables:
+- Candidate composition database.
+- Processing-property relationships.
+- Material selection criteria.
+- Experimental material specifications.
+
+### Stage K — Material Measurement and Validation
+
+**Objective:** Compare MAGNIKA predictions with real material behavior.
+
+Required measurements may include:
+- B-H curves.
+- Coercivity.
+- Saturation flux density.
+- Core-loss curves at different frequencies and inductions.
+- Resistivity.
+- Directional magnetic properties.
+- Grain size and texture measurements.
+- Temperature dependence.
+
+The material model should not be considered engineering-ready until it has been compared with independently measured data.
+
+Deliverables:
+- Experimental dataset.
+- Model calibration report.
+- Prediction-error report.
+- Validated material library.
+
+## Phase III — FEM and Motor Optimization
+
+### Stage L — ANSYS Maxwell Integration
+
+**Objective:** Connect the MAGNIKA material model to finite-element electromagnetic analysis.
+
+Proposed architecture:
+
+MAGNIKA microstructure engine → homogenized material model → ANSYS Maxwell → electromagnetic results → MAGNIKA optimization engine.
+
+Investigate:
+- Importing nonlinear B-H material data.
+- Anisotropic material representation.
+- Material-dependent saturation.
+- Loss calculations.
+- Automated geometry and simulation generation.
+- Parameter sweeps.
+- Optimization loops.
+
+The first implementation should use supported material-data interfaces, such as nonlinear B-H tables, rather than assume that arbitrary Python constitutive functions can be inserted directly into Maxwell.
+
+Deliverables:
+- Automated Maxwell workflow.
+- Material-data transfer.
+- Simulation result extraction.
+- Reproducible comparison against reference models.
+
+### Stage M — Rotor and Stator Topology Optimization
+
+**Objective:** Optimize the machine geometry using validated material properties.
+
+Rotor variables:
+- Number of flux barriers.
+- Barrier shape and dimensions.
+- Iron bridge thickness.
+- Rotor pole geometry.
+- Shaft and mechanical constraints.
+- Leakage paths.
+
+Stator variables:
+- Slot geometry.
+- Tooth width.
+- Yoke thickness.
+- Winding configuration.
+- Pole and slot combination.
+
+Optimization targets:
+- Average torque.
+- Torque ripple.
+- d-axis and q-axis inductance.
+- Effective saliency.
+- Saturation.
+- Iron losses.
+- Copper losses.
+- Power density.
+- Mechanical integrity.
+
+The important distinction is that the rotor and stator should be optimized using the selected material model, not merely a generic electrical-steel material card.
+
+## Phase IV — Motor and VFD Co-Design
+
+### Stage N — VFD and Control Optimization
+
+**Objective:** Optimize the electrical excitation of the motor together with its electromagnetic design.
+
+Investigate:
+- Current-vector control.
+- MTPA.
+- Flux weakening.
+- PWM strategies.
+- Switching frequency.
+- DC-link voltage utilization.
+- Current and voltage limits.
+- Current harmonics.
+- Inverter semiconductor losses.
+- Motor thermal response.
+
+The motor and VFD must be evaluated together because the best motor geometry depends partly on the excitation strategy and available inverter capability.
+
+Deliverables:
+- Control strategy.
+- Operating maps.
+- Efficiency maps.
+- Inverter loss model.
+- Motor-inverter optimization results.
+
+### Stage O — Integrated Multi-Objective Optimization
+
+**Objective:** Optimize the complete motor system.
+
+Design variables:
+- Material composition.
+- Grain size and texture.
+- Rotor geometry.
+- Stator geometry.
+- Winding configuration.
+- VFD parameters.
+- Control strategy.
+
+Primary objectives:
+- Maximum average torque.
+- High torque density.
+- High efficiency.
+- Low torque ripple.
+- Low manufacturing cost.
+- High reliability.
+- Reduced supply-chain dependency.
+
+Constraints:
+- Temperature.
+- Mechanical stress.
+- Rotor speed.
+- Maximum flux density.
+- Voltage and current.
+- Manufacturing tolerances.
+- Material availability.
+
+The result should be a Pareto-optimal family of motor designs rather than a single design optimized for only one operating point.
+
+## Phase V — Prototype and Industrial Validation
+
+### Stage P — Prototype Development
+
+**Objective:** Build and test a physical motor based on the optimized design.
+
+Required activities:
+- Material procurement or custom material production.
+- Lamination manufacturing.
+- Rotor and stator assembly.
+- Winding.
+- VFD integration.
+- Instrumentation.
+- Torque and speed measurements.
+- Efficiency measurements.
+- Thermal testing.
+- Vibration and mechanical validation.
+
+Compare measured results against:
+1. MAGNIKA material predictions.
+2. ANSYS Maxwell results.
+3. VFD and system simulations.
+
+Deliverables:
+- Prototype.
+- Test report.
+- Model-to-measurement comparison.
+- Design corrections.
+- Manufacturing cost assessment.
+
+### Stage Q — Industrialization
+
+**Objective:** Establish a repeatable manufacturing and product-development methodology.
+
+Investigate:
+- Material supplier qualification.
+- Manufacturing repeatability.
+- Lamination production.
+- Rotor mechanical reliability.
+- VFD production.
+- Quality-control requirements.
+- Cost and performance benchmarks.
+- Product certification and market requirements.
+
+The long-term result should be a scalable PM-free motor platform.
+
+# 7. Core Performance Indicators
+
+MAGNIKA should maintain a consistent set of performance indicators across its stages.
+
+| Category | Important indicators |
+|---|---|
+| Microstructure | Grain size, grain-size distribution, texture |
+| Magnetic response | B-H curve, permeability, saturation, coercivity |
+| Internal magnetic state | Grain dispersion, boundary mismatch, domain structure |
+| Material losses | Hysteresis and eddy-current losses |
+| Electromagnetic machine | Ld, Lq, saliency ratio, average torque |
+| Torque quality | Torque ripple |
+| Electrical performance | Current, voltage, power factor, efficiency |
+| Thermal performance | Winding and core temperatures |
+| Mechanical performance | Stress, deformation, rotor safety |
+| Economics | Material cost, manufacturing cost, system cost |
+
+The indicators must be connected to the correct physical model. For example, grain-angle dispersion is a useful lattice-model diagnostic, but it is not itself a measured motor-performance indicator.
+
+# 8. Scientific and Engineering Validation Principles
+
+The project should follow these rules:
+
+1. Never interpret a numerical trend as a real material law before calibration.
+2. Keep dimensionless model parameters separate from physical material properties.
+3. Preserve simulation configurations, random seeds and source-code versions.
+4. Validate numerical gradients and convergence independently of optimizer success flags.
+5. Use multiple independent microstructures when evaluating statistical trends.
+6. Separate grain-scale, material-scale and motor-scale phenomena.
+7. Compare predicted material behavior with independent measurements.
+8. Compare FEM predictions with prototype measurements before claiming motor performance.
+9. Report uncertainty and limitations alongside every major result.
+10. Do not optimize a motor using material data outside the validated range.
+
+# 9. Software and Data Architecture
+
+The proposed software architecture has five principal components:
+
+**1. MAGNIKA Microstructure Engine**
+- Grain generation.
+- Grain-size distributions.
+- Crystallographic orientation.
+- Magnetic interactions.
+- Microstructure simulation.
+
+**2. MAGNIKA Material Engine**
+- Homogenization.
+- Effective B-H response.
+- Anisotropy.
+- Saturation.
+- Magnetic losses.
+- Material database.
+
+**3. FEM Integration Engine**
+- ANSYS Maxwell automation.
+- Geometry generation.
+- Material assignment.
+- Simulation execution.
+- Result extraction.
+
+**4. Motor Optimization Engine**
+- Rotor and stator design variables.
+- Multi-objective optimization.
+- Sensitivity analysis.
+- Design comparison.
+
+**5. VFD and System Engine**
+- Electrical excitation.
+- Control optimization.
+- Efficiency mapping.
+- Thermal and system-level evaluation.
+
+All stages should produce reproducible datasets and machine-readable outputs. CSV and structured metadata should be retained alongside source code and configuration files.
+
+# 10. Immediate Priorities
+
+The next work should follow this order:
+
+1. Complete Stage G: grain size and microstructure sensitivity.
+2. Establish a physical interpretation of the lattice length scale.
+3. Investigate the limitations of the current nearest-neighbor magnetic model.
+4. Develop a more complete magnetostatic and micromagnetic formulation.
+5. Begin the material homogenization strategy.
+6. Identify real electrical-steel datasets for calibration.
+7. Define the first ANSYS Maxwell material-integration experiment.
+
+The priority is to build a reliable material model before beginning large-scale rotor and stator optimization.
+
+# 11. Final Project Objective
+
+MAGNIKA is intended to develop a new materials-aware method for designing synchronous reluctance motors.
+
+Its long-term ambition is to connect metallurgy, magnetic physics, electromagnetic FEM, motor topology and power-electronic control within one optimization framework.
+
+The commercial objective is to develop high-performance, cost-effective PM-free motors that reduce reliance on rare-earth permanent magnets and provide a robust alternative for manufacturers and industries that value supply-chain independence.
+
+**The central principle of MAGNIKA is that the motor, its magnetic material and its electrical excitation should be designed as one interconnected system.**

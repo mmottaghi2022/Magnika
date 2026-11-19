@@ -1,0 +1,551 @@
+# MAGNIKA
+## Part 2 — Scientific and Mathematical Specification
+
+**Document status:** Initial mathematical specification  
+**Research coverage:** Stages B–F  
+**Model classification:** Two-dimensional discrete XY spin-lattice model  
+**Primary application:** Investigation of microstructure-dependent magnetic orientation and its future extension toward electrical-steel material modeling.
+
+---
+
+# 1. Purpose and Scope
+
+This document defines the scientific and mathematical foundation of MAGNIKA.
+
+The current implementation investigates how magnetic orientations in a simplified polycrystalline structure respond to:
+- Exchange interactions.
+- Grain-boundary coupling.
+- Crystalline anisotropy.
+- Applied magnetic fields.
+- Microstructure variation.
+
+The purpose is to establish a reproducible mathematical model that can later be extended toward physically calibrated magnetic material simulation.
+
+The current model is not a complete micromagnetic model, a Maxwell electromagnetic solver, or a finite-element material model.
+
+It is a discrete two-dimensional magnetic orientation model.
+
+# 2. Physical Representation
+
+## 2.1 Lattice
+
+The material is represented by a two-dimensional lattice:
+
+\[
+N=N_xN_y
+\]
+
+Each lattice site represents a magnetic orientation.
+
+For the initial experiments:
+
+\[
+N_x=N_y=40
+\]
+
+Therefore:
+
+\[
+N=1600
+\]
+
+The lattice is divided into metallurgical grains.
+
+Each grain has an associated preferred anisotropy direction.
+
+## 2.2 Magnetic State
+
+Each lattice site has a unit in-plane magnetization vector:
+
+\[
+\mathbf m_i=
+\begin{bmatrix}
+\cos\theta_i\\
+\sin\theta_i
+\end{bmatrix}
+\]
+
+where:
+
+- \(\theta_i\) is the magnetic orientation.
+- \(|\mathbf m_i|=1\).
+- The model permits continuous in-plane angular rotation.
+
+The model therefore uses an XY representation.
+
+The magnetization magnitude is fixed locally; the model evolves orientation rather than local magnetization amplitude.
+
+## 2.3 Grain Structure
+
+A grain map assigns each lattice site to a grain:
+
+\[
+g(i)\in\{0,1,\ldots,N_g-1\}
+\]
+
+Each grain has a preferred anisotropy angle:
+
+\[
+\phi_g
+\]
+
+For a lattice site belonging to grain \(g\):
+
+\[
+\phi_i=\phi_{g(i)}
+\]
+
+The model distinguishes:
+- Intragranular nearest-neighbor interactions.
+- Intergranular nearest-neighbor interactions.
+
+The grain-boundary interaction is modified using a coefficient η.
+
+# 3. Energy Functional
+
+The current total energy is:
+
+\[
+E_{\mathrm{total}}=
+E_{\mathrm{exchange}}+
+E_{\mathrm{anisotropy}}+
+E_{\mathrm{Zeeman}}
+\]
+
+All energies and field parameters are currently expressed in a dimensionless or normalized formulation.
+
+## 3.1 Exchange Energy
+
+The exchange energy is:
+
+\[
+E_{\mathrm{exchange}}=
+\sum_{(i,j)\in\mathcal E}
+J_{ij}
+\left[1-\cos(\theta_i-\theta_j)\right]
+\]
+
+where:
+
+- \(\mathcal E\) is the set of nearest-neighbor lattice edges.
+- \(J_{ij}\) is the exchange interaction coefficient.
+
+The current boundary-dependent definition is:
+
+\[
+J_{ij}=
+\begin{cases}
+J,&g(i)=g(j)\\
+\eta J,&g(i)\neq g(j)
+\end{cases}
+\]
+
+Here:
+
+\[
+0<\eta\leq1
+\]
+
+The interpretation is:
+- η = 1: equal exchange strength inside and across grains.
+- η below 1: weaker exchange interaction across grain boundaries.
+- Smaller η: stronger decoupling between neighboring grain regions.
+
+The model does not yet derive η from measured grain-boundary chemistry or crystallographic misorientation.
+
+It is a phenomenological model parameter.
+
+## 3.2 Anisotropy Energy
+
+The current anisotropy energy is:
+
+\[
+E_{\mathrm{anisotropy}}=
+\frac{K}{4}
+\sum_i
+\sin^2\left[2(\theta_i-\phi_i)\right]
+\]
+
+where:
+- K is the anisotropy coefficient.
+- \(\phi_i\) is the preferred orientation assigned to the grain.
+
+This expression introduces fourfold angular periodicity.
+
+It is a simplified phenomenological anisotropy term. It should not yet be interpreted as a calibrated crystallographic anisotropy energy for a particular iron alloy.
+
+Its derivative is:
+
+\[
+\frac{\partial E_{\mathrm{anisotropy}}}{\partial\theta_i}
+=
+K\sin[2(\theta_i-\phi_i)]
+\cos[2(\theta_i-\phi_i)]
+\]
+
+## 3.3 Zeeman Energy
+
+The applied field is represented by:
+
+\[
+\mathbf h=
+\begin{bmatrix}
+h_x\\
+h_y
+\end{bmatrix}
+\]
+
+The Zeeman energy is:
+
+\[
+E_{\mathrm{Zeeman}}=
+-\sum_i
+\left[
+h_x\cos\theta_i+
+h_y\sin\theta_i
+\right]
+\]
+
+Its angular derivative is:
+
+\[
+\frac{\partial E_{\mathrm{Zeeman}}}{\partial\theta_i}
+=
+h_x\sin\theta_i-h_y\cos\theta_i
+\]
+
+The field is currently dimensionless or normalized.
+
+No direct conversion to A/m or tesla has been established.
+
+# 4. Energy Gradient
+
+The model calculates the derivative of total energy with respect to every magnetic angle.
+
+For lattice site \(i\):
+
+\[
+\frac{\partial E}{\partial\theta_i}
+=
+\frac{\partial E_{\mathrm{exchange}}}{\partial\theta_i}
++
+\frac{\partial E_{\mathrm{anisotropy}}}{\partial\theta_i}
++
+\frac{\partial E_{\mathrm{Zeeman}}}{\partial\theta_i}
+\]
+
+The exchange contribution is:
+
+\[
+\frac{\partial E_{\mathrm{exchange}}}{\partial\theta_i}
+=
+\sum_{j\in\mathcal N(i)}
+J_{ij}\sin(\theta_i-\theta_j)
+\]
+
+The complete gradient is therefore:
+
+\[
+\boxed{
+\begin{aligned}
+\frac{\partial E}{\partial\theta_i}
+=&
+\sum_{j\in\mathcal N(i)}
+J_{ij}\sin(\theta_i-\theta_j)\\
+&+K\sin[2(\theta_i-\phi_i)]
+\cos[2(\theta_i-\phi_i)]\\
+&+h_x\sin\theta_i-h_y\cos\theta_i
+\end{aligned}
+}
+\]
+
+This analytic gradient is supplied to the numerical optimizer.
+
+# 5. Numerical Equilibrium
+
+The current implementation finds equilibrium configurations through energy minimization.
+
+The objective is:
+
+\[
+\boldsymbol\theta^*=
+\underset{\boldsymbol\theta}{\operatorname{argmin}}
+\ E(\boldsymbol\theta)
+\]
+
+The implementation uses SciPy's L-BFGS-B optimizer with an analytic Jacobian.
+
+The optimizer seeks a local energy minimum.
+
+Important distinction:
+
+A converged energy minimum is not necessarily the unique global minimum. The result can depend on initial conditions and the energy landscape.
+
+The current model is quasi-static. It does not solve the time-dependent Landau-Lifshitz-Gilbert equation.
+
+# 6. Macroscopic Magnetization
+
+The macroscopic magnetization is calculated as:
+
+\[
+M_x=\frac{1}{N}\sum_i\cos\theta_i
+\]
+
+\[
+M_y=\frac{1}{N}\sum_i\sin\theta_i
+\]
+
+The magnitude is:
+
+\[
+M=\sqrt{M_x^2+M_y^2}
+\]
+
+The mean magnetic direction is:
+
+\[
+\theta_M=\operatorname{atan2}(M_y,M_x)
+\]
+
+Because every lattice site has unit local magnetization, the macroscopic magnitude can be less than unity due to angular dispersion.
+
+# 7. Microstructural Diagnostics
+
+The current model uses multiple measurements to distinguish different forms of angular variation.
+
+## 7.1 Grain-to-Grain Dispersion
+
+For each grain, calculate its circular mean magnetic orientation.
+
+Then calculate the circular resultant across grain-average orientations:
+
+\[
+R=
+\sqrt{
+\left\langle\cos\bar\theta_g\right\rangle_g^2+
+\left\langle\sin\bar\theta_g\right\rangle_g^2
+}
+\]
+
+The corresponding angular dispersion is:
+
+\[
+\sigma_g=
+\sqrt{-2\ln R}
+\]
+
+The result is converted to degrees.
+
+This measures the dispersion between grain-average orientations.
+
+## 7.2 Boundary Angular Mismatch
+
+For every nearest-neighbor edge crossing a grain boundary, calculate:
+
+\[
+\Delta\theta_{ij}
+=
+\operatorname{atan2}
+\left[
+\sin(\theta_i-\theta_j),
+\cos(\theta_i-\theta_j)
+\right]
+\]
+
+The boundary RMS mismatch is:
+
+\[
+\sigma_{\mathrm{boundary}}=
+\sqrt{
+\left\langle
+(\Delta\theta_{ij})^2
+\right\rangle_{\mathrm{boundary}}
+}
+\]
+
+This measures the angular mismatch between neighboring sites on opposite sides of grain boundaries.
+
+## 7.3 Intragranular Dispersion
+
+For each grain, calculate the circular mean orientation and the local angular deviations.
+
+Calculate the RMS angular deviation within each grain, then average across grains.
+
+This measures the internal angular spread within individual grains.
+
+These three diagnostics are different and must not be treated as interchangeable.
+
+# 8. Simulation Stages and Experimental Results
+
+## Stage B — Numerical Foundation
+
+Grid:
+- 40 × 40.
+- 100 grains.
+- Seed 17.
+
+Numerical gradient validation:
+
+\[
+\epsilon_{\mathrm{gradient}}
+\approx3.67\times10^{-7}
+\]
+
+The analytic gradient implementation was validated against numerical differentiation.
+
+## Stage C — Rotating Field
+
+Parameters:
+- Field magnitude: 0.45.
+- 72 angular steps.
+- Four boundary-coupling values.
+- 100 grains.
+
+Main observation:
+
+Reducing η increased grain-to-grain angular dispersion while the macroscopic magnetization changed relatively little.
+
+## Stage D — Boundary Sensitivity
+
+Nine η values were investigated from 0.01 to 1.0.
+
+Mean grain-to-grain dispersion changed from approximately:
+
+\[
+5.24^\circ\rightarrow2.72^\circ
+\]
+
+This corresponds to an approximate reduction of 48%.
+
+## Stage E — Statistical Reproducibility
+
+Five independent grain structures were investigated.
+
+Main observations:
+- The grain-dispersion trend persisted across all five seeds.
+- Boundary RMS mismatch decreased as η increased.
+- Intragranular dispersion increased as η increased.
+- Macroscopic magnetization remained close to unity.
+
+The average grain-to-grain dispersion reduction was approximately 47%.
+
+## Stage F — Field Interaction
+
+Parameters:
+- Five seeds.
+- Three field magnitudes: 0.25, 0.45, 0.70.
+- Nine η values.
+- 135 independent simulation cases.
+- 9,855 field samples.
+
+Approximate dispersion reductions from η = 0.01 to η = 1.0:
+
+| Applied field | Dispersion reduction |
+|---|---:|
+| 0.25 | 55.0% |
+| 0.45 | 47.0% |
+| 0.70 | 40.8% |
+
+The observed relative sensitivity to boundary coupling decreases as applied-field strength increases.
+
+# 9. Scientific Interpretation
+
+The existing experiments support the following limited conclusions within the current model:
+
+1. Grain-boundary exchange strength affects internal magnetic orientation.
+2. Stronger boundary coupling reduces grain-to-grain orientation dispersion.
+3. Stronger coupling also reduces boundary mismatch.
+4. Intragranular angular dispersion increases as boundary coupling increases.
+5. Higher applied-field strength reduces grain-to-grain dispersion.
+6. Macroscopic magnetization can remain nearly unchanged while internal microstructural magnetic states change significantly.
+
+The results suggest redistribution of angular distortion between grain boundaries and grain interiors.
+
+They do not establish a universal physical law for real electrical steel.
+
+# 10. Current Model Limitations
+
+The following physics is not yet represented adequately:
+
+- Three-dimensional magnetic structures.
+- Long-range magnetostatic interactions.
+- Demagnetizing fields.
+- Explicit magnetic domain walls.
+- Variable magnetization magnitude.
+- Landau-Lifshitz-Gilbert dynamics.
+- Hysteresis and irreversible switching.
+- Eddy-current effects.
+- Frequency-dependent losses.
+- Temperature dependence.
+- Real crystallographic anisotropy constants.
+- Measured grain-boundary exchange parameters.
+- Physically calibrated grain dimensions.
+
+The current model therefore cannot independently predict:
+- Real B-H curves.
+- Real coercivity.
+- Real iron losses.
+- Actual rotor torque.
+- Actual SynRM efficiency.
+
+These require further model development and experimental calibration.
+
+# 11. Required Evolution of the Mathematical Model
+
+The future model should progressively introduce:
+
+## 11.1 Physical Length Scale
+
+Define lattice spacing and connect the numerical grain geometry to measured grain dimensions.
+
+## 11.2 More Complete Micromagnetics
+
+Introduce:
+- Exchange stiffness.
+- Magnetocrystalline anisotropy.
+- Magnetostatic energy.
+- Applied-field energy.
+- Appropriate boundary conditions.
+
+## 11.3 Three-Dimensional or Multiscale Representation
+
+Investigate whether two-dimensional modeling is sufficient for the material phenomena of interest, or whether selected effects require 3D simulation.
+
+## 11.4 Homogenization
+
+Convert the microstructure-scale response into effective constitutive material properties suitable for FEM.
+
+## 11.5 Experimental Calibration
+
+Calibrate the model against measured electrical-steel data before using it to predict engineering motor performance.
+
+# 12. Reproducibility Requirements
+
+Every experiment must retain:
+
+- Source-code version.
+- Model parameters.
+- Grain-generation seed.
+- Grid dimensions.
+- Number of grains.
+- Field magnitude.
+- Field-step configuration.
+- Optimizer configuration.
+- Convergence thresholds.
+- Raw numerical outputs.
+- Summary statistics.
+- Numerical validation results.
+
+Each stage should have a reproducible execution script and a separate reporting script.
+
+# 13. Scientific Position
+
+MAGNIKA currently represents a numerical research framework for studying microstructure-dependent magnetic orientation.
+
+Its current contribution is the investigation of how grain-boundary coupling and applied-field strength affect the internal magnetic state of a simplified polycrystalline lattice.
+
+The long-term research objective is to develop a validated multiscale magnetic material model that can be connected to electromagnetic FEM and used for materials-aware SynRM design optimization.
+
+The transition from the present model to that objective requires additional physical terms, material calibration, homogenization and experimental validation.
+
+**The mathematical foundation established in Stages B–F is the starting point, not the final physical model.**
